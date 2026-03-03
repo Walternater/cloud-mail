@@ -26,6 +26,9 @@ const loginService = {
 
 		const { email, password, token, code } = params;
 
+		// DEBUG: 检查 ADMIN 环境变量是否配置
+		console.log('[DEBUG register] c.env.admin:', c.env.admin, 'type:', typeof c.env.admin);
+
 		let { regKey, register, registerVerify, regVerifyCount, minEmailPrefix, emailPrefixFilter } = await settingService.query(c)
 
 		if (oauth) {
@@ -127,6 +130,10 @@ const loginService = {
 		}
 
 		const { salt, hash } = await saltHashUtils.hashPassword(password);
+
+		// DEBUG: 检查管理员邮箱匹配逻辑
+		console.log('[DEBUG register] env.admin:', c.env.admin, 'register email:', email, 'match:', c.env.admin === email);
+		console.log('[DEBUG register] type:', type, 'defType:', defType, 'final type:', type || defType);
 
 		const userId = await userService.insert(c, { email, regKeyId,password: hash, salt, type: type || defType });
 

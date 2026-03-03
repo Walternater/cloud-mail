@@ -29,10 +29,13 @@ const userService = {
 			throw new BizError(t('authExpired'), 401);
 		}
 
-		const [account, roleRow, permKeys] = await Promise.all([
+		// 管理员权限判断：email 匹配 c.env.admin 或者 type=0（管理员）
+		const isAdmin = userRow.email === c.env.admin || userRow.type === 0;
+		const permKeys = isAdmin ? ['*'] : await permService.userPermKeys(c, userId);
+
+		const [account, roleRow] = await Promise.all([
 			accountService.selectByEmailIncludeDel(c, userRow.email),
-			roleService.selectById(c, userRow.type),
-			userRow.email === c.env.admin ? Promise.resolve(['*']) : permService.userPermKeys(c, userId)
+			roleService.selectById(c, userRow.type)
 		]);
 
 		const user = {};
