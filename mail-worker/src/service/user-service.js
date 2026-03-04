@@ -25,13 +25,21 @@ const userService = {
 
 		const userRow = await userService.selectById(c, userId);
 
+		console.log('[DEBUG] userRow:', JSON.stringify(userRow));
+		console.log('[DEBUG] userRow.type:', userRow.type, 'typeof:', typeof userRow.type);
+		console.log('[DEBUG] userRow.type === 0:', userRow.type === 0);
+		console.log('[DEBUG] userRow.type == 0:', userRow.type == 0);
+
 		if (!userRow) {
 			throw new BizError(t('authExpired'), 401);
 		}
 
 		// 管理员权限判断：email 匹配 c.env.admin 或者 type=0（管理员）
-		const isAdmin = userRow.email === c.env.admin || userRow.type === 0;
+		const isAdmin = userRow.email === c.env.admin || userRow.type == 0;
+		console.log('[DEBUG] isAdmin:', isAdmin, 'c.env.admin:', c.env.admin, 'userRow.email:', userRow.email);
+
 		const permKeys = isAdmin ? ['*'] : await permService.userPermKeys(c, userId);
+		console.log('[DEBUG] permKeys:', permKeys);
 
 		const [account, roleRow] = await Promise.all([
 			accountService.selectByEmailIncludeDel(c, userRow.email),
